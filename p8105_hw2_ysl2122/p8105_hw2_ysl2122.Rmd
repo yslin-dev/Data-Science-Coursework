@@ -9,6 +9,7 @@ output: github_document
 
 ```{r}
 library(tidyverse)
+library(readxl)
 
 # Read and clean data:
 Transit_df = 
@@ -94,17 +95,20 @@ pending for OH!!!!!!!!
 ```{r}
 Trash_df = 
   read_excel(
-    here::here("p8105_hw2_ysl2122", "Data", "my_file.xlsx")
-  )
+    here::here("p8105_hw2_ysl2122", "Data", "Trash_Wheel.xlsx"),
+  sheet = "Mr. Trash Wheel",
+  range = "A2:N710",
+  skip=1
+  )|>
+  janitor::clean_names()|>
+  skimr::skim()
 ```
 ```{r}
 ```
 
-This problem uses the Mr. Trash Wheel dataset, available as an Excel file on the course website.
-
 Read and clean the Mr. Trash Wheel sheet:
 
-specify the sheet in the Excel file and to omit non-data entries (rows with notes / figures; columns containing notes) using arguments in read_excel
+ and to omit non-data entries (rows with notes / figures; columns containing notes) using arguments in read_excel
 use reasonable variable names
 omit rows that do not include dumpster-specific data
 round the number of sports balls to the nearest integer and converts the result to an integer variable (using as.integer)
