@@ -7,57 +7,99 @@ output: github_document
 
 # Problem 1
 
-#### Read and clean data:
-#### Convert the entry variable from character (YES vs NO) to a logical variable (case_match function may be useful).
 ```{r}
 library(tidyverse)
 
+# Read and clean data:
 Transit_df = 
-  read_csv("p8105_hw2_ysl2122/Data/NYC_Transit.csv") |>
-  janitor::clean_names() |>
+  read_csv(
+    here::here("p8105_hw2_ysl2122", "Data","NYC_Transit.csv") 
+  )|>
+  janitor::clean_names()
+
+Transit_df
+  head(Transit_df,20)
+  tail(Transit_df,5)
+  skimr::skim(Transit_df)
+```
+
+
+```{r}
+# Retain line, station, name, station latitude / longitude, routes served, entry, vending, entrance type, and ADA compliance. 
+# Convert the entry variable from character (YES vs NO) to a logical variable (case_match function may be useful)
+Transit_df =
+  Transit_df|>
+  select(line, station_name, station_latitude, station_longitude, entry, vending, entrance_type, ada, route1, route2, route3, route4, route5, route6, route7, route8, route9, route10, route11)|>
   mutate(
     entry =
       case_match(
         entry,
-        "Yes" ~ 1,
-        "No" ~ 0
+        "YES" ~ 1,
+        "NO" ~ 0
       )
   )|>
   distinct(station_name, .keep_all=TRUE)
-```
-
-```{r}
-Transit_df
-head(Transit_df,20)
-tail(Transit_df,5)
-skimr::skim(Transit_df)
-```
-
-#### Retain line, station, name, station latitude / longitude, routes served, entry, vending, entrance type, and ADA compliance. 
-```{r}
+  
 Transit_df|>
-  select(line, station_name, station_latitude, station_longitude, entry, vending, entrance_type, ada, route1, route2, route3, route4, route5, route6, route7, route8, route9, route10, route11)
+  pull(ada)|>
+  sum(na.rm=TRUE)
+
+Transit_df|>
+  filter(vending =="NO")|>
+  pull(entry)|>
+  mean(na.rm=TRUE)
+
+Transit_tidy_df = 
+  Transit_df|>
+  mutate(
+    across(route1:route11, as.character)
+  )|>
+    pivot_longer(
+    route1:route11,
+    names_to = "route_number",
+    values_to = "route_name"
+  )
+
+Transit_tidy_df|>
+  filter(route_name=="A")|>
+  distinct(station_name)|>
+  nrow()
+
+Transit_tidy_df|>
+  filter(route_name="A")|>
+  distinct(station_name, .keep_all=TRUE)|>
+  filter(ada==TRUE)|>
+  nrow())
 ```
 
-
-```{r}
-```
-```{r}
-```
 #### Write a short paragraph about this dataset 
 This dataset includes several character and numerical variables describing train routes, associated stations, and station details, such as station name, location (ex. location, longitude, latitude), and amenities/logistics (ex. vending, entrance type, ADA compliance, staffing capacity). / station location (station) – explain briefly what variables the dataset contains, describe your data cleaning steps so far, and give the dimension (rows x columns) of the resulting dataset. Are these data tidy?
 
 ## Answer the following questions using these data:
 
 **How many distinct stations are there? Note that stations are identified both by name and by line (e.g. 125th St 8th Avenue; 125st Broadway; 125st Lenox); the distinct function may be useful here.**
+  365 distinct stations
 
 **How many stations are ADA compliant?**
+  468 stations are ADA compliant
 
 **What proportion of station entrances / exits without vending allow entrance?**
+55.56% of stations
 
 **Reformat data so that route number and route name are distinct variables. How many distinct stations serve the A train? Of the stations that serve the A train, how many are ADA compliant?**
+pending for OH!!!!!!!!
 
 # Problem 2
+
+```{r}
+Trash_df = 
+  read_excel(
+    here::here("p8105_hw2_ysl2122", "Data", "my_file.xlsx")
+  )
+```
+```{r}
+```
+
 This problem uses the Mr. Trash Wheel dataset, available as an Excel file on the course website.
 
 Read and clean the Mr. Trash Wheel sheet:
