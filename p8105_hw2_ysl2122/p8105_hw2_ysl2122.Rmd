@@ -123,8 +123,6 @@ Merge_df =
     sports_balls = as.integer(round(sports_balls))
   )
 ```
-```{r}
-```
 
 **Write a paragraph about these data** you are encouraged to use inline R. Be sure to note the number of observations in the resulting dataset, and give examples of key variables. 
 
@@ -137,7 +135,31 @@ This problem uses data collected in an observational study to understand the tra
 
 Basic demographic information were measured at the study baseline. The study monitored the development of MCI and recorded the age of MCI onset during the follow-up period, with the last visit marking the end of follow-up. APOE4 is a variant of the apolipoprotein E gene, significantly associated with a higher risk of developing Alzheimer’s disease. The amyloid 𝛽
  42/40 ratio holds significant promise for diagnosing and predicting disease outcomes. This ratio undergoes changes over time and has been linked to the manifestation of clinical symptoms of Alzheimer’s disease.
+ 
+```{r}
+unzip(
+ here::here("p8105_hw2_ysl2122", "Data", "data_mci.zip"),
+ exdir = here::here("p8105_hw2_ysl2122", "Data")
+)
 
+list.files(
+  here::here("p8105_hw2_ysl2122", "Data"),
+  recursive = TRUE
+)
+
+mci_df = 
+  read_excel(
+    here::here("p8105_hw2_ysl2122", "Data", "data_mci.xlsx"),
+  range = "B2:F485"
+  )|>
+  janitor::clean_names()
+Transit_df = 
+  read_csv(
+    here::here("p8105_hw2_ysl2122", "Data","NYC_Transit.csv") 
+  )|>
+  janitor::clean_names()
+
+```
 Import, clean, and tidy the dataset of baseline demographics. Ensure that sex and APOE4 carrier status are appropriate encoded (i.e. not numeric), and remove any participants who do not meet the stated inclusion criteria (i.e. no MCI at baseline). Discuss important steps in the import process and relevant features of the dataset. How many participants were recruited, and of these how many develop MCI? What is the average baseline age? What proportion of women in the study are APOE4 carriers?
 
 Similarly, import, clean, and tidy the dataset of longitudinally observed biomarker values; comment on the steps on the import process and the features of the dataset.
