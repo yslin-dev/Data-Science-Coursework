@@ -6,16 +6,34 @@ output: github_document
 ---
 
 # Problem 1
+
+#### Read and clean data:
 ```{r}
 library(tidyverse)
 
 Transit_df = 
-  read_csv(
-    file = "data/NYC_Transit.csv"
-  )
+  read_csv("p8105_hw2_ysl2122/Data/NYC_Transit.csv")
 Transit_df = janitor::clean_names(Transit_df)
 ```
-Read and clean the data; retain line, station, name, station latitude / longitude, routes served, entry, vending, entrance type, and ADA compliance. Convert the entry variable from character (YES vs NO) to a logical variable (case_match function may be useful).
+
+```{r}
+Transit_df
+head(Transit_df,20)
+tail(Transit_df,5)
+skimr::skim(Transit_df)
+```
+
+#### Retain line, station, name, station latitude / longitude, routes served, entry, vending, entrance type, and ADA compliance. 
+```{r}
+Transit_df|>
+  select(line, station_name, station_latitude, station_longitude, entry, vending, entrance_type, ada, route1, route2, route3, route4, route5, route6, route7, route8, route9, route10, route11)
+```
+
+```{r}
+```
+```{r}
+```
+Convert the entry variable from character (YES vs NO) to a logical variable (case_match function may be useful).
 
 Write a short paragraph about this dataset – explain briefly what variables the dataset contains, describe your data cleaning steps so far, and give the dimension (rows x columns) of the resulting dataset. Are these data tidy?
 
