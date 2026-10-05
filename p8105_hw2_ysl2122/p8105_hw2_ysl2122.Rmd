@@ -98,23 +98,39 @@ Trash_df =
     here::here("p8105_hw2_ysl2122", "Data", "Trash_Wheel.xlsx"),
   sheet = "Mr. Trash Wheel",
   range = "A2:N710",
-  skip=1
   )|>
+  mutate(Year=as.numeric(Year))
+  
+Professor_df = 
+  readxl::read_excel(
+    here::here("p8105_hw2_ysl2122", "Data", "Trash_Wheel.xlsx"),
+  sheet = "Professor Trash Wheel",
+  range = "A2:M135",
+  )
+
+Gwynnda_df = 
+  readxl::read_excel(
+    here::here("p8105_hw2_ysl2122", "Data", "Trash_Wheel.xlsx"),
+  sheet = "Gwynns Falls Trash Wheel",
+  range = "A2:N710",
+  )|>
+ mutate(Year=as.numeric(Year))
+
+Merge_df = 
+  bind_rows (Trash_df, Professor_df, Gwynnda_df)|>
   janitor::clean_names()|>
-  skimr::skim()
+   mutate(
+    sports_balls = as.integer(round(sports_balls))
+  )
 ```
 ```{r}
 ```
 
-Read and clean the Mr. Trash Wheel sheet:
+**Write a paragraph about these data** you are encouraged to use inline R. Be sure to note the number of observations in the resulting dataset, and give examples of key variables. 
 
- and to omit non-data entries (rows with notes / figures; columns containing notes) using arguments in read_excel
-use reasonable variable names
-omit rows that do not include dumpster-specific data
-round the number of sports balls to the nearest integer and converts the result to an integer variable (using as.integer)
-Use a similar process to import, clean, and organize the data for Professor Trash Wheel and Gwynnda, and combine this with the Mr. Trash Wheel dataset to produce a single tidy dataset. To keep track of which Trash Wheel is which, you may need to add an additional variable to both datasets before combining.
+**For available data, what was the total weight of trash collected by Professor Trash Wheel?** 
 
-Write a paragraph about these data; you are encouraged to use inline R. Be sure to note the number of observations in the resulting dataset, and give examples of key variables. For available data, what was the total weight of trash collected by Professor Trash Wheel? What was the total number of cigarette butts collected by Gwynnda in June of 2022?
+**What was the total number of cigarette butts collected by Gwynnda in June of 2022?**
 
 # Problem 3
 This problem uses data collected in an observational study to understand the trajectory of Alzheimer’s disease (AD) biomarkers. Study participants were free of Mild Cognitive Impairment (MCI), a stage between the expected cognitive decline of normal aging and the more serious decline of dementia, at the study baseline.
