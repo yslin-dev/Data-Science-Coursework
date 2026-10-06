@@ -150,7 +150,8 @@ list.files(
 mci_df = 
   read_csv(
     here::here("p8105_hw2_ysl2122", "Data", "data_mci", "MCI_baseline.csv"),
- skip = 1
+ skip = 1,
+ na = c("$",".")
   )|>
   janitor::clean_names()|>
   mutate(
