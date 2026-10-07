@@ -1,0 +1,181 @@
+---
+title: "Homework 2"
+author: "Yuyi Lin"
+date: "2026-10-04"
+output: github_document
+---
+
+```{r load_libraries}
+library(tidyverse)
+library(readxl)
+```
+# Problem 1
+
+**Read and cleaned data. Retained 19 variables. Converted the entry variable from character (YES vs NO) to a logical variable using case_match function. Reduced redundancy and organized rows by 1 unique station name per row.**
+
+This dataset includes several character and numerical variables describing the MTA train station. Using skimr, we found there are 19 variables total (columns) and 356 observations (rows). This means that after reducing to 1 station name per row, we find that there are 356 unique stations total. The data is not tidy, as route number and route name are not distinct variables.
+
+```{r}
+transit_df = 
+  read_csv(
+    "data/NYC_Transit.csv",
+    col_types = cols(Route8 = "c", Route9 = "c", Route10 = "c", Route11 = "c")
+  )|>
+  janitor::clean_names()|>
+  select(line, station_name, station_latitude, station_longitude, entry, vending, entrance_type, ada, starts_with("route")
+  )|>
+ mutate(
+    entry =
+      case_match(
+        entry,
+        "YES" ~ TRUE,
+        "NO" ~ FALSE
+      )
+  )|>
+  distinct(station_name, .keep_all=TRUE)
+
+transit_df
+  head(transit_df,20)
+  tail(transit_df,5)
+```
+
+84 stations are ADA compliant.
+  
+```{r}
+transit_df|>
+  filter(ada==TRUE)|>
+  select(station_name, line)|>
+  distinct()
+```
+
+37.7% of station entrances/edits without vending allow entrance.
+
+```{r}
+transit_df|>
+  filter(vending =="NO")|>
+  pull(entry)|>
+  mean(na.rm=TRUE)
+```
+
+**Reformat data so that route number and route name are distinct variables. How many distinct stations serve the A train? Of the stations that serve the A train, how many are ADA compliant?**
+nrow()pending for OH!!!!!!!!
+```{r}
+transit_df|>
+  pivot_longer(
+    route1:route11,
+    names_to = "route_number",
+    values_to = "route_name")|>
+  filter(route_name=="A")|>
+  distinct()
+
+transit_df|>
+  pivot_longer(
+    route1:route11,
+    names_to = "route_number",
+    values_to = "route_name")|>
+  filter(route_name=="A", ada==TRUE)|>
+  select(station_name,line)|>
+  distinct()
+```
+
+# Problem 2
+
+```{r}
+trash_df = 
+  read_excel("data/Trash_Wheel_2026.xlsx")
+     na = c("")
+  sheet = "Mr. Trash Wheel"
+  range = "A2:N743"|>
+  mutate(Year=as.numeric(Year))
+  
+professor_df = 
+  readxl::read_excel(
+    here::here("data/Trash_Wheel_2026.xlsx"),
+    na = c(""),
+  sheet = "Professor Trash Wheel",
+  range = "A2:M140",
+  )
+
+gwynnda_df = 
+  readxl::read_excel(
+    here::here("data/Trash_Wheel_2026.xlsx"),
+    na = c(""),
+  sheet = "Gwynnda the Good Wheel of the W",
+  range = "A2:N395",
+  )|>
+ mutate(Year=as.numeric(Year))
+
+merge_df = 
+  bind_rows (trash_df, professor_df, gwynnda_df)|>
+  janitor::clean_names()|>
+   mutate(
+    sports_balls = as.integer(round(sports_balls))
+  )
+```
+
+**Write a paragraph about these data. You are encouraged to use inline R!!!!** Be sure to note the number of observations in the resulting dataset, and give examples of key variables. 
+
+**For available data, what was the total weight of trash collected by Professor Trash Wheel?** 
+
+**What was the total number of cigarette butts collected by Gwynnda in June of 2022?**
+
+# Problem 3
+This problem uses data collected in an observational study to understand the trajectory of Alzheimer’s disease (AD) biomarkers. Study participants were free of Mild Cognitive Impairment (MCI), a stage between the expected cognitive decline of normal aging and the more serious decline of dementia, at the study baseline.
+
+Basic demographic information were measured at the study baseline. The study monitored the development of MCI and recorded the age of MCI onset during the follow-up period, with the last visit marking the end of follow-up. APOE4 is a variant of the apolipoprotein E gene, significantly associated with a higher risk of developing Alzheimer’s disease. The amyloid 𝛽
+ 42/40 ratio holds significant promise for diagnosing and predicting disease outcomes. This ratio undergoes changes over time and has been linked to the manifestation of clinical symptoms of Alzheimer’s disease.
+ 
+```{r}
+unzip(
+ here::here("data/data_mci.zip"),
+ exdir = ("data")
+)
+
+baseline_df = 
+  read_csv("data/data_mci/mci_baseline.csv")
+ skip = 1
+ na = c("$",".")
+  |>
+  janitor::clean_names()|>
+  mutate(
+    sex = as.factor(sex),
+    apoe4 = as.factor(apoe4)
+  )|>
+  filter(
+    age_at_onset > current_age | is.na(age_at_onset)
+  )
+```
+**Discuss important steps in the import process and relevant features of the dataset.**
+After unzipping the file, I took the time to figure out how to extract files to my HW folder using exdir. Developing a system for pushing HW folders onto a single repo was important to me and will help organize my github in the future. Rows were participant ID number and columns were participant characteristics such as age at baseline, sex, carrier status, sex, and age at onset of MCI, if applicable !!!!!!!
+
+**How many participants were recruited, and of these how many develop MCI?**
+  Of the `r nrow(baseline_df)` participants recruited `r baseline_df |> filter(is.na(age_at_onset) == FALSE) |> nrow()` developed MCI.
+
+**What is the average baseline age? What proportion of women in the study are APOE4 carriers?**
+  The average baseline age is `r baseline_df |> pull(current_age) |> mean (na.rm = TRUE)`, and `r mean((baseline_df |> filter(sex=="0") |> pull(apoe4)) == "1", na.rm = TRUE)` of women in the study were APOE4 carriers.
+
+```{r}
+amyloid_df = 
+  read_csv(
+    here::here("data/data_mci/mci_amyloid.csv"),
+ skip = 1,
+ na = c("NA","","Na")
+  )|>
+  janitor::clean_names()
+
+merge_mci_df = 
+  inner_join (baseline_df, amyloid_df, by = c("id"="study_id")
+  )
+
+write_csv(
+  merge_mci_df, ("data/merge_mci.csv")
+  )
+```
+
+**Similarly, import, clean, and tidy the dataset of longitudinally observed biomarker values; comment on the steps on the import process and the features of the dataset.**
+Dataset followed a similar clean up as mci_df where first column was skipped, missing codes were specified and removed, and text grammar was cleaned up. Similar to mci_df, rows were participant ID. However, columns are different time (2, 4, 6, and 8 years) that have elapsed since the study baseline to the visit where biomarker Amyloid was measured.
+
+**Check whether some participants appear in only the baseline or amyloid datasets, and comment on your findings. Combine the demographic and biomarker datasets so that only participants who appear in both datasets are retained, and briefly describe the resulting dataset; export the result as a CSV to your data directory.**
+`r nrow(baseline_df) - nrow(merge_mci_df)` participants appear in only the baseline dataset,and `r nrow(amyloid_df) - nrow(merge_mci_df)` participants appear in only the amyloid dataset. 
+!!!!!!!!!!
+
