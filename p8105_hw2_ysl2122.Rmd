@@ -11,10 +11,6 @@ library(readxl)
 ```
 # Problem 1
 
-**Read and cleaned data. Retained 19 variables. Converted the entry variable from character (YES vs NO) to a logical variable using case_match function. Reduced redundancy and organized rows by 1 unique station name per row.**
-
-This dataset includes several character and numerical variables describing the MTA train station. Using skimr, we found there are 19 variables total (columns) and 356 observations (rows). This means that after reducing to 1 station name per row, we find that there are 356 unique stations total. The data is not tidy, as route number and route name are not distinct variables.
-
 ```{r}
 transit_df = 
   read_csv(
@@ -38,8 +34,10 @@ transit_df
   head(transit_df,20)
   tail(transit_df,5)
 ```
+  
+**Read and cleaned data. Retained 19 variables. Converted the entry variable from character (YES vs NO) to a logical variable using case_match function. Reduced redundancy and organized rows by 1 unique station name per row.**
 
-84 stations are ADA compliant.
+This dataset includes several character and numerical variables describing the MTA train station. Using skimr, we found there are 19 variables total (columns) and 356 observations (rows). This means that after reducing to 1 station name per row, we find that there are 356 unique stations total. The data is not tidy, as route number and route name are not distinct variables.
   
 ```{r}
 transit_df|>
@@ -48,7 +46,7 @@ transit_df|>
   distinct()
 ```
 
-37.7% of station entrances/edits without vending allow entrance.
+84 stations are ADA compliant.
 
 ```{r}
 transit_df|>
@@ -57,26 +55,28 @@ transit_df|>
   mean(na.rm=TRUE)
 ```
 
-**Reformat data so that route number and route name are distinct variables. How many distinct stations serve the A train? Of the stations that serve the A train, how many are ADA compliant?**
-nrow()pending for OH!!!!!!!!
-```{r}
-transit_df|>
-  pivot_longer(
-    route1:route11,
-    names_to = "route_number",
-    values_to = "route_name")|>
-  filter(route_name=="A")|>
-  distinct()
+37.7% of station entrances/edits without vending allow entrance.
 
-transit_df|>
+```{r}
+transit_tidy_df = 
+  transit_df|>
   pivot_longer(
     route1:route11,
     names_to = "route_number",
-    values_to = "route_name")|>
+    values_to = "route_name")
+
+distinct_a = 
+  transit_tidy_df |>
+  filter(route_name=="A")|>
+  distinct(station_name, line)
+
+distinct_ada_a = 
+  transit_tidy_df |>
   filter(route_name=="A", ada==TRUE)|>
-  select(station_name,line)|>
-  distinct()
+  distinct(station_name, line)
 ```
+
+There are `r nrow(distinct_a)` distinct stations that serve the A train. Of the stations that serve the A, `r nrow(distinct_ada_a)` are ADA compliant.
 
 # Problem 2
 
