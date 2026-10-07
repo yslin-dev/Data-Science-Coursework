@@ -82,28 +82,37 @@ There are `r nrow(distinct_a)` distinct stations that serve the A train. Of the 
 
 ```{r}
 trash_df = 
-  read_excel("data/Trash_Wheel_2026.xlsx")
-     na = c("")
-  sheet = "Mr. Trash Wheel"
-  range = "A2:N743"|>
-  mutate(Year=as.numeric(Year))
+  read_excel("data/Trash_Wheel_2026.xlsx",
+     na = c(""),
+  sheet = "Mr. Trash Wheel",
+  range = "A2:N743"
+  )|>
+  mutate(
+    Year=as.numeric(Year),
+  'Plastic Bottles' = as.numeric('Plastic Bottles')
+  )
   
 professor_df = 
-  readxl::read_excel(
-    here::here("data/Trash_Wheel_2026.xlsx"),
+  readxl::read_excel("data/Trash_Wheel_2026.xlsx",
     na = c(""),
   sheet = "Professor Trash Wheel",
-  range = "A2:M140",
+  range = "A2:M140"
+  )|>
+  mutate(
+    Year=as.numeric(Year),
+  'Plastic Bottles' = as.numeric('Plastic Bottles')
   )
 
 gwynnda_df = 
-  readxl::read_excel(
-    here::here("data/Trash_Wheel_2026.xlsx"),
+  readxl::read_excel("data/Trash_Wheel_2026.xlsx",
     na = c(""),
   sheet = "Gwynnda the Good Wheel of the W",
-  range = "A2:N395",
+  range = "A2:N395"
   )|>
- mutate(Year=as.numeric(Year))
+ mutate(
+   Year=as.numeric(Year),
+  'Plastic Bottles' = as.numeric('Plastic Bottles')
+  )
 
 merge_df = 
   bind_rows (trash_df, professor_df, gwynnda_df)|>
