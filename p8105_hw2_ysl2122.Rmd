@@ -87,9 +87,10 @@ trash_df =
   sheet = "Mr. Trash Wheel",
   range = "A2:N743"
   )|>
+  filter(!is.na(Dumpster))|>
   mutate(
     Year=as.numeric(Year),
-  'Plastic Bottles' = as.numeric('Plastic Bottles')
+  `Plastic Bottles` = as.numeric(`Plastic Bottles`)
   )
   
 professor_df = 
@@ -98,9 +99,10 @@ professor_df =
   sheet = "Professor Trash Wheel",
   range = "A2:M140"
   )|>
+  filter(!is.na(Dumpster))|>
   mutate(
     Year=as.numeric(Year),
-  'Plastic Bottles' = as.numeric('Plastic Bottles')
+  `Plastic Bottles` = as.numeric(`Plastic Bottles`)
   )
 
 gwynnda_df = 
@@ -109,9 +111,10 @@ gwynnda_df =
   sheet = "Gwynnda the Good Wheel of the W",
   range = "A2:N395"
   )|>
+  filter(!is.na(Dumpster))|>
  mutate(
    Year=as.numeric(Year),
-  'Plastic Bottles' = as.numeric('Plastic Bottles')
+  `Plastic Bottles` = as.numeric(`Plastic Bottles`)
   )
 
 merge_df = 
@@ -119,7 +122,7 @@ merge_df =
   janitor::clean_names()|>
    mutate(
     sports_balls = as.integer(round(sports_balls))
-  )
+  )|>
 ```
 
 **Write a paragraph about these data. You are encouraged to use inline R!!!!** Be sure to note the number of observations in the resulting dataset, and give examples of key variables. 
