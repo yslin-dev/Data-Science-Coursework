@@ -37,7 +37,7 @@ transit_df
   
 **Read and cleaned data. Retained 19 variables. Converted the entry variable from character (YES vs NO) to a logical variable using case_match function. Reduced redundancy and organized rows by 1 unique station name per row.**
 
-This dataset includes several character and numerical variables describing the MTA train station. Using skimr, we found there are 19 variables total (columns) and 356 observations (rows). This means that after reducing to 1 station name per row, we find that there are 356 unique stations total. The data is not tidy, as route number and route name are not distinct variables.
+This dataset includes several character and numerical variables describing the MTA train station. There are `r ncol(transit_df)` variables and `r nrow(transit_df)` observations total. This means that after reducing to 1 station name per row, we find that there are `r nrow(transit_df)` unique stations total. The data is not tidy, as route number and route name are not distinct variables.
   
 ```{r}
 transit_df|>
@@ -88,9 +88,10 @@ trash_df =
   range = "A2:N743"
   )|>
   filter(!is.na(Dumpster))|>
-  mutate(
-    Year=as.numeric(Year),
-  `Plastic Bottles` = as.numeric(`Plastic Bottles`)
+  janitor::clean_names()|>
+ mutate(
+   year=as.numeric(year),
+  plastic_bottles = as.numeric(plastic_bottles)
   )
   
 professor_df = 
@@ -100,9 +101,10 @@ professor_df =
   range = "A2:M140"
   )|>
   filter(!is.na(Dumpster))|>
-  mutate(
-    Year=as.numeric(Year),
-  `Plastic Bottles` = as.numeric(`Plastic Bottles`)
+  janitor::clean_names()|>
+ mutate(
+   year=as.numeric(year),
+  plastic_bottles = as.numeric(plastic_bottles)
   )
 
 gwynnda_df = 
@@ -112,24 +114,32 @@ gwynnda_df =
   range = "A2:N395"
   )|>
   filter(!is.na(Dumpster))|>
+  janitor::clean_names()|>
  mutate(
-   Year=as.numeric(Year),
-  `Plastic Bottles` = as.numeric(`Plastic Bottles`)
+   year=as.numeric(year),
+  plastic_bottles = as.numeric(plastic_bottles)
   )
 
 merge_df = 
   bind_rows (trash_df, professor_df, gwynnda_df)|>
-  janitor::clean_names()|>
    mutate(
     sports_balls = as.integer(round(sports_balls))
-  )|>
+  )
 ```
 
-**Write a paragraph about these data. You are encouraged to use inline R!!!!** Be sure to note the number of observations in the resulting dataset, and give examples of key variables. 
+The new dataset, which ranges from `r merge_df|>pull(year)|>min(na.rm=TRUE)` to `r merge_df|>pull(year)|>max(na.rm=TRUE)`, has `r nrow(merge_df)` observations and `r ncol(merge_df)` variables, where the average number of sports balls collected was `r merge_df|>pull(sports_balls)|>mean(na.rm=TRUE)`. Key variables include which dumpster collected the trash, the time (month, year, and date) trash was collected, the weight and volume of trash, the number of different trash types (ex. plastic, cigarettes, sports balls), and the amount of electricity generated after burning. 
 
-**For available data, what was the total weight of trash collected by Professor Trash Wheel?** 
+For available data, Professor Trash Wheel collected a total of `r professor_df|>pull(weight_tons)|>sum(na.rm=TRUE)` tons of trash.
 
-**What was the total number of cigarette butts collected by Gwynnda in June of 2022?**
+```{r}
+gwynnda_cig = 
+  gwynnda_df |>
+  filter (year==2022, month == "June") |>
+  pull(cigarette_butts)|>
+  sum(na.rm=TRUE)
+```
+
+Gwynnda collected a total of `r gwynnda_cig` cigarette butts in June 2022.
 
 # Problem 3
 This problem uses data collected in an observational study to understand the trajectory of Alzheimer’s disease (AD) biomarkers. Study participants were free of Mild Cognitive Impairment (MCI), a stage between the expected cognitive decline of normal aging and the more serious decline of dementia, at the study baseline.
@@ -168,11 +178,9 @@ After unzipping the file, I took the time to figure out how to extract files to 
 
 ```{r}
 amyloid_df = 
-  read_csv(
-    here::here("data/data_mci/mci_amyloid.csv"),
- skip = 1,
- na = c("NA","","Na")
-  )|>
+  read_csv("data/data_mci/mci_amyloid.csv",
+    skip = 1,
+    na = c("NA","","Na"))
   janitor::clean_names()
 
 merge_mci_df = 
