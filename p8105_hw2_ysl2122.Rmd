@@ -142,22 +142,17 @@ gwynnda_cig =
 Gwynnda collected a total of `r gwynnda_cig` cigarette butts in June 2022.
 
 # Problem 3
-This problem uses data collected in an observational study to understand the trajectory of Alzheimer’s disease (AD) biomarkers. Study participants were free of Mild Cognitive Impairment (MCI), a stage between the expected cognitive decline of normal aging and the more serious decline of dementia, at the study baseline.
-
-Basic demographic information were measured at the study baseline. The study monitored the development of MCI and recorded the age of MCI onset during the follow-up period, with the last visit marking the end of follow-up. APOE4 is a variant of the apolipoprotein E gene, significantly associated with a higher risk of developing Alzheimer’s disease. The amyloid 𝛽
- 42/40 ratio holds significant promise for diagnosing and predicting disease outcomes. This ratio undergoes changes over time and has been linked to the manifestation of clinical symptoms of Alzheimer’s disease.
  
 ```{r}
-unzip(
- here::here("data/data_mci.zip"),
- exdir = ("data")
+unzip("data/data_mci.zip",
+ exdir = "data"
 )
 
 baseline_df = 
-  read_csv("data/data_mci/mci_baseline.csv")
- skip = 1
+  read_csv("data/data_mci/mci_baseline.csv",
+ skip = 1,
  na = c("$",".")
-  |>
+  )|>
   janitor::clean_names()|>
   mutate(
     sex = as.factor(sex),
@@ -167,20 +162,16 @@ baseline_df =
     age_at_onset > current_age | is.na(age_at_onset)
   )
 ```
-**Discuss important steps in the import process and relevant features of the dataset.**
-After unzipping the file, I took the time to figure out how to extract files to my HW folder using exdir. Developing a system for pushing HW folders onto a single repo was important to me and will help organize my github in the future. Rows were participant ID number and columns were participant characteristics such as age at baseline, sex, carrier status, sex, and age at onset of MCI, if applicable !!!!!!!
 
-**How many participants were recruited, and of these how many develop MCI?**
-  Of the `r nrow(baseline_df)` participants recruited `r baseline_df |> filter(is.na(age_at_onset) == FALSE) |> nrow()` developed MCI.
+Originally, I had used the unzip and exdir function to put the new files in my data folder. After OH, Gustavo suggested I just clicked manually on the zip file, which immediately opened up the data_mci folder within my data folder. Rows (total=`r nrow(baseline_df)` observations) were participant ID number, and columns were participant characteristics (total=`r ncol(baseline_df)`variables) such as age at baseline, sex, carrier status, sex, and age at onset of MCI, if applicable.
 
-**What is the average baseline age? What proportion of women in the study are APOE4 carriers?**
-  The average baseline age is `r baseline_df |> pull(current_age) |> mean (na.rm = TRUE)`, and `r mean((baseline_df |> filter(sex=="0") |> pull(apoe4)) == "1", na.rm = TRUE)` of women in the study were APOE4 carriers.
+Of the `r nrow(baseline_df)` participants recruited `r baseline_df |> filter(is.na(age_at_onset) == FALSE) |> nrow()` developed MCI. The average baseline age is `r baseline_df |> pull(current_age) |> mean (na.rm = TRUE)`, and `r baseline_df|>filter(sex=="0" & apoe4=="1")|>mean(na.rm = TRUE)` of women in the study were APOE4 carriers.
 
 ```{r}
 amyloid_df = 
   read_csv("data/data_mci/mci_amyloid.csv",
     skip = 1,
-    na = c("NA","","Na"))
+    na = c("NA","","Na"))|>
   janitor::clean_names()
 
 merge_mci_df = 
@@ -193,9 +184,9 @@ write_csv(
 ```
 
 **Similarly, import, clean, and tidy the dataset of longitudinally observed biomarker values; comment on the steps on the import process and the features of the dataset.**
-Dataset followed a similar clean up as mci_df where first column was skipped, missing codes were specified and removed, and text grammar was cleaned up. Similar to mci_df, rows were participant ID. However, columns are different time (2, 4, 6, and 8 years) that have elapsed since the study baseline to the visit where biomarker Amyloid was measured.
+Dataset followed similar tidying steps as baseline_df where first column was skipped, missing codes were specified and removed, and text grammar was corrected. Similar to baseline_df, rows (total=`r nrow(amyloid_df)` observations) were participant ID. However, columns contained the different times (total=`r ncol(amyloid_df)` variables; 2, 4, 6, and 8 years) that have elapsed since the study baseline to the visit when biomarker amyloid was measured.
 
 **Check whether some participants appear in only the baseline or amyloid datasets, and comment on your findings. Combine the demographic and biomarker datasets so that only participants who appear in both datasets are retained, and briefly describe the resulting dataset; export the result as a CSV to your data directory.**
-`r nrow(baseline_df) - nrow(merge_mci_df)` participants appear in only the baseline dataset,and `r nrow(amyloid_df) - nrow(merge_mci_df)` participants appear in only the amyloid dataset. 
+`r nrow(baseline_df) - nrow(merge_mci_df)` participants appeared in only the baseline dataset,and `r nrow(amyloid_df) - nrow(merge_mci_df)` participants appeared in only the amyloid dataset. The combined dataset now has `r nrow(merge_mci_df)` observations and `r ncol(merge_mci_df)` variables total.
 !!!!!!!!!!
 
